@@ -1784,12 +1784,17 @@ function PawnUpdateTooltip(TooltipName, MethodName, Param1, ...)
 			for i = 2, 5 do
 				local LeftLine = _G[TooltipName .. "TextLeft" .. i]
 				if LeftLine then
-					local LeftLineText = LeftLine:GetText()
-					if LeftLineText and LeftLineText ~= "" and (strfind(LeftLineText, ItemLevelSearchPattern1) or strfind(LeftLineText, ItemLevelSearchPattern2)) then
-						-- This is the line.  Add an arrow to the end.
-						AnnotatedItemLevel = true
-						LeftLine:SetText(LeftLineText .. "  |TInterface\\AddOns\\Pawn\\Textures\\UpgradeArrow:0|t|cff00ff00+" .. ItemLevelIncrease)
-					end
+					-- Wrap the entire operation in pcall to handle tainted strings safely
+					local success = pcall(function()
+						local LeftLineText = LeftLine:GetText()
+						if LeftLineText and #LeftLineText > 0 then
+							if (strfind(LeftLineText, ItemLevelSearchPattern1) or strfind(LeftLineText, ItemLevelSearchPattern2)) then
+								-- This is the line.  Add an arrow to the end.
+								AnnotatedItemLevel = true
+								LeftLine:SetText(LeftLineText .. "  |TInterface\\AddOns\\Pawn\\Textures\\UpgradeArrow:0|t|cff00ff00+" .. ItemLevelIncrease)
+							end
+						end
+					end)
 				end
 			end
 			if not AnnotatedItemLevel then
